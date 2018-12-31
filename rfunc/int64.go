@@ -20,17 +20,6 @@ func Int64Max (InSlice []int64) (int64) {
 	return MaxValue
 }
 
-func Int64Mean (Vec []int64) (int64) {
-	Sum := int64(0)
-	Nvals := int64(0)
-	for _,val := range Vec {
-			Sum += val
-			Nvals++
-	}
-	Mean := Sum / Nvals
-	return Mean
-}
-
 func Int64Sum (InSlice []int64) (int64) {
 	Sum := int64(0)
 	for _,val := range InSlice {

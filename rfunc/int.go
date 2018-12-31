@@ -20,17 +20,6 @@ func IntMax (InSlice []int) (int) {
 	return MaxValue
 }
 
-func IntMean (Vec []int) (int) {
-	Sum := 0
-	Nvals := 0
-	for _,val := range Vec {
-			Sum += val
-			Nvals++
-	}
-	Mean := Sum / Nvals
-	return Mean
-}
-
 func IntSum (InSlice []int) (int) {
 	Sum := 0
 	for _,val := range InSlice {
