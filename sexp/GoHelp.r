@@ -45,3 +45,15 @@ Vectorize <- function(m) {
 	
 	return(v)
 }
+
+#This returns a vector of strings given the input and a delimiter
+String2vec <- function(s, delim) {
+	return(strsplit(s, delim)[[1]])
+}
+
+#This function returns a single string based on an input vector
+Vec2string <- function(svec, delim) {
+	return(paste(svec, collapse=delim))
+}
+	
+	
