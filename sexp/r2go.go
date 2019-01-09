@@ -26,6 +26,8 @@ import "C"
 import (
 	//used so SEXP can be used across other packages
 	"unsafe"
+	//used for tracking and troubleshooting
+	//"fmt"
 )
 
 //create the GoSEXP type to make the C.SEXP from this package accessible to others
@@ -58,7 +60,6 @@ func AsFloats(s GoSEXP) []float64 {
 
 	//start by finding the length of the SEXP and making a slice
 	Slen := int(C.XLENGTH(cs))
-	//Stype := C.TYPEOF(cs)
 	OutSlice := make([]float64, Slen)
 
 	//for each element of the slice, pull out the SEXP part

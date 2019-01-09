@@ -6,7 +6,7 @@ import(
 )
 
 //create a function that concatenates a slice of strings to a single string
-func Slice2single(slice []string, delim string) (singlestring string) {
+func Slice2string(slice []string, delim string) (singlestring string) {
 	singlestring = strings.Join(slice, delim)
 	
 	return singlestring
