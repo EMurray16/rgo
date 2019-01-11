@@ -1,7 +1,7 @@
 //This adds support for matrices and vectors of strings
 package sexp
 
-import "fmt"
+// import "fmt"
 
 //create a type for a matrix of floats
 type Matrix struct {
@@ -77,7 +77,6 @@ func Matricize(v []float64) (M Matrix) {
 //create a function that reads a vectorized matrix into a Go matrix
 func AsMatrix(s GoSEXP) (m Matrix) {
 	vec := AsFloats(s)
-	fmt.Println(vec)
 	m = Matricize(vec)
 	return m
 }
