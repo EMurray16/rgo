@@ -2,6 +2,7 @@ package rfunc
 
 import(
 	"sort"
+	"math"
 )
 
 func FloatMean(Vec []float64) (float64) {
@@ -61,3 +62,22 @@ func FloatSum (InSlice []float64) (float64) {
 	}
 	return Sum
 }
+
+func FloatSD(InSlice []float64) (float64) {
+	//start by finding the mean and sample size
+	mean := FloatMean(InSlice)
+	size := len(InSlice)
+	
+	//now find the diffs
+	diffs := make([]float64, size)
+	for i, f:= range InSlice {
+		diffs[i] = math.Pow((f - mean), 2)
+	}
+	
+	//now find the variance
+	variance := FloatSum(diffs) / float64((size - 1))
+	sd := math.Sqrt(variance)
+	return sd
+}
+	
+	
