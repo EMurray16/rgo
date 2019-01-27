@@ -5,12 +5,11 @@ import (
 	"sync"
 )
 
-
 //create a struct with a waitgroup for parallelization
 type ParCluster struct {
 	ProcsWG, AvailWG sync.WaitGroup
 	Nprocs, MaxProcs int
-	AvailBool bool //this boolean helps deal with latency
+	AvailBool        bool //this boolean helps deal with latency
 }
 
 //create a function that makes the struct
@@ -24,23 +23,23 @@ func MakeParCluster(MaxProcs int) ParCluster {
 }
 
 //create an add and done method for the new struct
-func (Clust *ParCluster) Add() {	
+func (Clust *ParCluster) Add() {
 	if Clust.AvailBool {
 		//we can add a cluster
 		Clust.ProcsWG.Add(1)
 		Clust.Nprocs++
-		
+
 		//see if we need to send a message not to add any more
 		if Clust.Nprocs >= Clust.MaxProcs {
 			Clust.AvailBool = false
 			Clust.AvailWG.Add(1)
 		}
-		
-	} else { 
+
+	} else {
 		//we need to wait for some space to become available and try again
 		Clust.AvailWG.Wait()
 		Clust.Add()
-	}	
+	}
 }
 func (Clust *ParCluster) Done() {
 	Clust.ProcsWG.Done()

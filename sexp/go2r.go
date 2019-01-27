@@ -38,7 +38,7 @@ type List struct {
 }
 
 //create a dereference method for a GoSEXP
-func (g GoSEXP) deref() (C.SEXP) {
+func (g GoSEXP) deref() C.SEXP {
 	return *(*C.SEXP)(g.Point)
 }
 
@@ -96,15 +96,15 @@ func String2sexp(in string) GoSEXP {
 func List2sexp(in List) GoSEXP {
 	//get the length of the list
 	size := len(in.S)
-	
+
 	//start by making the list vector itself
 	s := C.allocVector(C.VECSXP, C.int(size))
-	
+
 	//now insert the objects into the list SEXP
 	for ind, obj := range in.S {
 		C.listInsert(s, C.int(ind), obj.deref())
 	}
-	
+
 	//wrap into an unsafe pointer and return
 	outgo := GoSEXP{unsafe.Pointer(&s)}
 	return outgo

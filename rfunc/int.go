@@ -1,8 +1,8 @@
 package rfunc
 
-func IntMin (InSlice []int) (int) {
+func IntMin(InSlice []int) int {
 	MinValue := InSlice[0]
-	for _,val := range InSlice {
+	for _, val := range InSlice {
 		if val < MinValue {
 			MinValue = val
 		}
@@ -10,9 +10,9 @@ func IntMin (InSlice []int) (int) {
 	return MinValue
 }
 
-func IntMax (InSlice []int) (int) {
+func IntMax(InSlice []int) int {
 	MaxValue := InSlice[0]
-	for _,val := range InSlice {
+	for _, val := range InSlice {
 		if val > MaxValue {
 			MaxValue = val
 		}
@@ -20,16 +20,16 @@ func IntMax (InSlice []int) (int) {
 	return MaxValue
 }
 
-func IntSum (InSlice []int) (int) {
+func IntSum(InSlice []int) int {
 	Sum := 0
-	for _,val := range InSlice {
+	for _, val := range InSlice {
 		Sum += val
 	}
 	return Sum
 }
 
-func IntIn(refint int, checkslice []int) (bool) {
-	for _,i := range checkslice {
+func IntIn(refint int, checkslice []int) bool {
+	for _, i := range checkslice {
 		if i == refint {
 			return true
 		}

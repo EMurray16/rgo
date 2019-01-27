@@ -6,7 +6,7 @@ package sexp
 //create the matrix type
 type Matrix struct {
 	Nrow, Ncol int
-	V []float64
+	V          []float64
 }
 
 //this function creates a zero-value matrix
@@ -15,7 +15,7 @@ func CreateZeros(nrow, ncol int) *Matrix {
 	v := make([]float64, nrow*ncol)
 	//create the matrix
 	m := Matrix{nrow, ncol, v}
-	
+
 	return &m
 }
 
@@ -23,7 +23,7 @@ func CreateZeros(nrow, ncol int) *Matrix {
 func (m *Matrix) GetRow(ind int) (f []float64) {
 	//the row indexes are next to each other
 	startind := (ind - 1) * m.Ncol
-	f = m.V[startind:(startind+m.Ncol)]
+	f = m.V[startind:(startind + m.Ncol)]
 	return f
 }
 
@@ -31,25 +31,25 @@ func (m *Matrix) GetRow(ind int) (f []float64) {
 func (m *Matrix) GetCol(ind int) (f []float64) {
 	//the col indexes are not contiguous, so preallocate the slice
 	f = make([]float64, m.Nrow)
-	
+
 	//now loop through the matrix and add elements one by one
 	sliceind := 0
-	for i := ind-1; sliceind < m.Nrow; i += m.Ncol{
+	for i := ind - 1; sliceind < m.Nrow; i += m.Ncol {
 		f[sliceind] = m.V[i]
 		sliceind++
 	}
-	
+
 	return f
 }
 
 //this method gets a single index of the matrix
 func (m *Matrix) GetInd(rowi, coli int) float64 {
-	i := (rowi - 1) * m.Ncol + (coli - 1)
+	i := (rowi-1)*m.Ncol + (coli - 1)
 	return m.V[i]
 }
 
 //this method sets the entire row of a matrix
-func (m *Matrix) SetRow(ind int, data []float64) () {
+func (m *Matrix) SetRow(ind int, data []float64) {
 	startind := (ind - 1) * m.Ncol
 	//edit the row in a loop
 	dataind := 0
@@ -60,79 +60,79 @@ func (m *Matrix) SetRow(ind int, data []float64) () {
 }
 
 //this method sets the entire column of a matrix
-func (m *Matrix) SetCol(ind int, data []float64) () {
+func (m *Matrix) SetCol(ind int, data []float64) {
 	sliceind := 0
-	for i := ind-1; sliceind < m.Nrow; i += m.Ncol {
+	for i := ind - 1; sliceind < m.Nrow; i += m.Ncol {
 		m.V[i] = data[sliceind]
 		sliceind++
 	}
 }
 
 //this method sets a single index of a matrix
-func (m *Matrix) SetInd(rowi, coli int, data float64) () {
-	i := (rowi - 1) * m.Ncol + (coli - 1)
+func (m *Matrix) SetInd(rowi, coli int, data float64) {
+	i := (rowi-1)*m.Ncol + (coli - 1)
 	m.V[i] = data
 }
 
 //this method adds to all elements of a row
-func (m *Matrix) AddRow(ind int, data []float64) () {
+func (m *Matrix) AddRow(ind int, data []float64) {
 	//start by getting the row of the matrix
 	row := m.GetRow(ind)
-	
+
 	//now add each element of data to row
 	for i, v := range row {
 		row[i] = v + data[i]
 	}
-	
+
 	//now set that row
 	m.SetRow(ind, row)
 }
 
 //this method adds to all elements of a column
-func (m *Matrix) AddCol(ind int, data []float64) () {
+func (m *Matrix) AddCol(ind int, data []float64) {
 	//start by getting the col of the matrix
 	col := m.GetCol(ind)
-	
+
 	//now add each element of data to col
 	for i, v := range col {
 		col[i] = v + data[i]
 	}
-	
+
 	//now set that col
 	m.SetCol(ind, col)
 }
 
 //this method adds to a single index of the matrix
-func (m *Matrix) AddInd(rowi, coli int, data float64) () {
+func (m *Matrix) AddInd(rowi, coli int, data float64) {
 	//get the index
-	i := (rowi - 1) * m.Ncol + (coli - 1)
+	i := (rowi-1)*m.Ncol + (coli - 1)
 	m.V[i] = m.V[i] + data
 }
 
 //this method appends a row onto a matrix
-func (m *Matrix) AppendRow(data []float64) () {
+func (m *Matrix) AppendRow(data []float64) {
 	//this is easy
 	m.Nrow++
 	m.V = append(m.V, data...)
 }
 
 //this method appends a col onto a matrix
-func (m *Matrix) AppendCol(data []float64) () {
+func (m *Matrix) AppendCol(data []float64) {
 	//make a dummy slice of 0s for each added element
 	dummy := make([]float64, m.Nrow)
 	m.V = append(m.V, dummy...)
-	
+
 	//now we can safely index the Ncol field without lying
 	m.Ncol++
-	
+
 	//loop through the end of each row and insert the data
 	var sliceind int = 0 //tracks data index
-	for i := m.Ncol-1; i < len(m.V); i += m.Ncol {
+	for i := m.Ncol - 1; i < len(m.V); i += m.Ncol {
 		copy(m.V[i+1:], m.V[i:]) //this opens the blank space in the slice
 		m.V[i] = data[sliceind]
 		sliceind++
 	}
-}	
+}
 
 //this method vectorizes a matrix by prepending the ncol
 func (m *Matrix) Vectorize() (v []float64) {
@@ -160,4 +160,3 @@ func Mat2sexp(M Matrix) (s GoSEXP) {
 	s = Float2sexp(vec)
 	return s
 }
-	
