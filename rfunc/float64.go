@@ -55,12 +55,11 @@ func FloatMax (InSlice []float64) (float64) {
 	return MaxValue
 }
 
-func FloatSum (InSlice []float64) (float64) {
-	Sum := float64(0)
+func FloatSum (InSlice []float64) (sum float64) {
 	for _,val := range InSlice {
-		Sum += val
+		sum += val
 	}
-	return Sum
+	return sum
 }
 
 func FloatSD(InSlice []float64) (float64) {
