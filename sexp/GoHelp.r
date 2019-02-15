@@ -30,7 +30,7 @@ Matricize <- function(InVec) {
 }
 
 #Convert a matrix to a vector for Go
-Vectorize <- function(m) {
+Vectorize <- function(InMat) {
 	#Make the vector
 	v = vector(mode='double', length=length(m)+1)
 	v[1] = ncol(m)

@@ -20,17 +20,17 @@ func CreateZeros(nrow, ncol int) *Matrix {
 }
 
 //this method returns an entire row of the matrix as a slice
-func (m *Matrix) GetRow(ind int) (f []float64) {
+func (m *Matrix) GetRow(ind int) []float64 {
 	//the row indexes are next to each other
 	startind := (ind - 1) * m.Ncol
-	f = m.V[startind:(startind + m.Ncol)]
+	f := m.V[startind:(startind + m.Ncol)]
 	return f
 }
 
 //this method returns an entire column of the matrix as a slice
-func (m *Matrix) GetCol(ind int) (f []float64) {
+func (m *Matrix) GetCol(ind int) []float64 {
 	//the col indexes are not contiguous, so preallocate the slice
-	f = make([]float64, m.Nrow)
+	f := make([]float64, m.Nrow)
 
 	//now loop through the matrix and add elements one by one
 	sliceind := 0
@@ -75,7 +75,7 @@ func (m *Matrix) SetInd(rowi, coli int, data float64) {
 }
 
 //this method adds to all elements of a row
-func (m *Matrix) AddRow(ind int, data []float64) {
+func (m *Matrix) AddToRow(ind int, data []float64) {
 	//start by getting the row of the matrix
 	row := m.GetRow(ind)
 
@@ -89,7 +89,7 @@ func (m *Matrix) AddRow(ind int, data []float64) {
 }
 
 //this method adds to all elements of a column
-func (m *Matrix) AddCol(ind int, data []float64) {
+func (m *Matrix) AddToCol(ind int, data []float64) {
 	//start by getting the col of the matrix
 	col := m.GetCol(ind)
 
@@ -103,7 +103,7 @@ func (m *Matrix) AddCol(ind int, data []float64) {
 }
 
 //this method adds to a single index of the matrix
-func (m *Matrix) AddInd(rowi, coli int, data float64) {
+func (m *Matrix) AddToInd(rowi, coli int, data float64) {
 	//get the index
 	i := (rowi-1)*m.Ncol + (coli - 1)
 	m.V[i] = m.V[i] + data
@@ -135,16 +135,17 @@ func (m *Matrix) AppendCol(data []float64) {
 }
 
 //this method vectorizes a matrix by prepending the ncol
-func (m *Matrix) Vectorize() (v []float64) {
+func (m *Matrix) vectorize() []float64 {
 	//put the Ncol in the slice
-	v = append(v, float64(m.Ncol))
+	v := float64{m.Ncol}
 	//now add the matrix vector
 	v = append(v, m.V...)
 	return v
 }
 
 //create a function that reads a vectorized matrix into a Go matrix
-func AsMatrix(s GoSEXP) (m Matrix) {
+func AsMatrix(s GoSEXP) Matrix {
+	var m Matrix
 	vec := AsFloats(s)
 	m.Ncol = int(vec[0])
 	m.Nrow = (len(vec) - 1) / m.Ncol
@@ -155,7 +156,7 @@ func AsMatrix(s GoSEXP) (m Matrix) {
 //create a function that function that converts a matrix to a sexp
 func Mat2sexp(M Matrix) (s GoSEXP) {
 	//vectorize the matrix
-	vec := M.Vectorize()
+	vec := M.vectorize()
 	//now write the vector
 	s = Float2sexp(vec)
 	return s
