@@ -1,2 +1,5 @@
 .idea
 .DS_Store
+.Rhistory
+demo/*.h
+demo/*.so
