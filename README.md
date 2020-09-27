@@ -8,8 +8,8 @@ This repository contains two packages:
 
     This would be very much improved if Go were to introduce generics.
 
- 3. `sexp`:
+ 3. `rsexp`:
 
     This is the most important package in the repo, as it allows one to connect R to Go, exporting Go functions as callable C functions. This makes it easier to use the good parts of Go (performance and non-embarrassing parallelization, for example) and the good parts of R (plotting and nice data analysis libraries, for example) into one workflow. 
 
-This repository also contains an example of using `sexp` to export a library of simple Go functions that can be compiled and then called from R.
+This repository also contains an example of using `rsexp` to export a library of simple Go functions that can be compiled and then called from R.
