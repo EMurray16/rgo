@@ -207,15 +207,19 @@ func (g GoSEXP) AsStrings() ([]string, error) {
 		// first, pull out the CHARSXP of the string
 		charsxp := C.STRING_ELT(cs, C.long(stringInd))
 
-		// now we want to build a string using each index of the character vector
+		// we want to build a string using each index of the character vector
+		// to do this we'll use a byte slice as the go-between (get it?)
 		nChar := int(C.XLENGTH(charsxp))
-		s := ""
+		goBytes := make([]byte, 0, nChar)
 		for charInd := 0; charInd < nChar; charInd++ {
-			// pull out the specific character and add it to the string
+			// pull out the specific character and add it to the slice
 			indChar := C.charExtract(charsxp, C.int(charInd))
-			s += C.GoString(&indChar)
+			charAsByte := C.GoBytes(unsafe.Pointer(&indChar), 1)
+			// using append here is safer, in case we unexpectedly get more than 1 byte from charExtract
+			goBytes = append(goBytes, charAsByte...)
 		}
-		OutSlice[stringInd] = s
+		// convert the assembled slice to a string
+		OutSlice[stringInd] = string(goBytes)
 	}
 
 	//now convert this to a string and return
