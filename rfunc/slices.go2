@@ -1,0 +1,61 @@
+package rfunc
+
+// In returns a bool if the check value is in the input slice.
+func In[C comparable](check C, slice []C) bool {
+	for _, c := range slice {
+		if c == check {
+			return true
+		}
+	}
+
+	return false
+}
+
+// VectorIn returns a slice of bools, indicating whether each element of the first input slice
+// is also in the second
+func VectorIn[C comparable](ref, checkAgainst []C) []bool {
+	out := make([]bool, len(ref))
+
+	for i, r := range ref {
+		out[i] = In(r, checkAgainst)
+	}
+
+	return out
+}
+
+// Unique returns all the unique elements of the input slice, in order of appearance
+func Unique[C comparable](slice []C) []C {
+	// Create a slice with the capacity of the input slice, but length 0 so we know we never need
+	// to allocate more memory with append
+	uniqueC := make([]C, 0, len(slice))
+	for _, v := range slice {
+		if !In(v, uniqueC) {
+			uniqueC = append(uniqueC, v)
+		}
+	}
+
+	// create a slice with the length and capacity that matches the unique values
+	output := make([]C, len(uniqueC))
+	_ = copy(output, uniqueC)
+	return output
+}
+
+// Intersect returns the intersection of two slices - that is, a slice of the common values between the two
+// input slices.
+func Intersect[C comparable](slice1, slice2 []C) []C {
+	// create a slice that is the same size of the first slice (we know that the intersection of
+	// two slices can't be bigger than one of them) so we don't have to reallocate memory on an
+	// append call
+	intersect := make([]C, 0, len(slice1))
+
+	for _, v := range slice1 {
+		if In(v, slice2) {
+			intersect = append(intersect, v)
+		}
+	}
+
+	// now create a copy with the length and capacity to match the output
+	output := make([]C, len(intersect))
+	_ = copy(output ,intersect)
+	return output
+}

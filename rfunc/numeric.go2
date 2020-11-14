@@ -1,0 +1,98 @@
+package rfunc
+
+import "gsort"
+
+// Numeric is Go's closest equivalent to an R numeric type. A Numeric is any Go type which natively supports
+// multiplication and addition. Complex number types are excluded.
+//
+// All operations with the Numeric type use the arithmetic native to the underlying type (float64, int, etc.).
+// This means functions like Mean() can return unexpected results for non-float types - especially for someone
+// coming from R where a numeric type is always treated as a double, implicitly, for similar functions.
+type Numeric interface {
+	type float64, float32,
+		int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64
+}
+
+// Mean calculates the arithmetic mean of any numeric type.
+func Mean[T Numeric](in []T) (mean T) {
+	// we can't use len() to count the elements because it will return an int,
+	//	which may not necesarily match the input type
+	var n T
+	for _, v := range in {
+		mean += v
+		n++
+	}
+	mean = mean / n
+	return mean
+}
+
+// Min returns the minimum value of a numeric type
+func Min[T Numeric](in []T) (min T) {
+	min = in[0]
+	for _, v := range in {
+		if v < min {
+			min = v
+		}
+	}
+	return min
+}
+
+// Max returns the maximum value of a numeric type
+func Max[T Numeric](in []T) (max T) {
+	max = in[0]
+	for _, v := range in {
+		if v > max {
+			max = v
+		}
+	}
+	return max
+}
+
+// Sum sums a numeric vector
+func Sum[T Numeric](in []T) (sum T) {
+	for _, v := range in {
+		sum += v
+	}
+	return sum
+}
+
+// Var calculates the variance of a slice of numerics.
+func Var[T Numeric](in []T) (variance T) {
+	//start by finding the mean and sample size
+	mean := Mean(in)
+	// just like in Mean, we can't use len to calculate the sample size
+	var n T
+
+	//now find the diffs
+	diffs := make([]T, len(in))
+	for i, v := range in {
+		diffs[i] = (v - mean) * (v - mean)
+		n++
+	}
+
+	//now find the variance
+	variance = Sum(diffs) / (n - 1)
+	// We can't compute the SD without math also using generics! (or implementing a type-agnostic sqrt function ourselves)
+	// sd := math.Sqrt(variance)
+	return variance
+}
+
+// Median returns the median of a slice of numerics
+func Median[T Numeric](in []T) (Med T) {
+	workingSlice := make([]T, len(in))
+	_ = copy(workingSlice, in)
+	// We can take advantage of the go2go demo package gsort to sort the input slice
+	gsort.SliceFn(workingSlice, func(i, j T) bool {return i < j})
+
+	//Find the indexes for the median
+	l := len(workingSlice)
+	if l <= 1 {
+		return workingSlice[0]
+	} else if l%2 == 0 {
+		Med = (workingSlice[l/2-1] + workingSlice[l/2]) / 2
+	} else {
+		Med = workingSlice[l/2]
+	}
+	return Med
+}
