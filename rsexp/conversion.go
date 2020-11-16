@@ -64,25 +64,30 @@ func (g GoSEXP) deref() C.SEXP {
 }
 
 // NewGoSEXP creates a new GoSEXP from the input object. Because C types are not able to be exported by cgo, the input
-// is the dreaded empty interface. Despite the empty interface, the input to NewGoSEXP must always be a pointer to a
-// C.SEXP, like so:
+// is the dreaded empty interface. Despite the empty interface, the argument to NewGoSEXP must always be a C.SEXP or a
+// pointer one, like so:
 //		// assume s is a C.SEXP
 //		gs, err := NewGoSEXP(&s)
+//		// this is fine too
+//		gs, err := NewGoSEXP(s)
 //
-// To try and enforce as much type safety as possible, the NewGoSEXP will return an error if the input is not a *SEXP.
-// It will also return a TypeMismatch error if the SEXP is not of a type that the rsexp package supports, like a list
-// or a closure.
+// To try and enforce as much type safety as possible, the NewGoSEXP will return an error if the input is not a SEXP or
+// a *SEXP. It will also return a TypeMismatch error if the SEXP is not of a type that the rsexp package supports,
+// like a list or a closure.
+//
+// NOTE: While NewGoSEXP can support either a SEXP or a *SEXP as the argument, it is STRONGLY RECOMMENDED that users
+// pick one argument type and stick with it for an entire project.
 //
 // For a demonstration of how to use NewGoSEXP, see the example provided in the documentation or the demo of this
 // package that can be found in the same repository on Github.
 func NewGoSEXP(in interface{}) (g GoSEXP, err error) {
-	// This function requires in to be a C.SEXP, but there is no compile-time enforcement mechanism
-	// Therefore, we will proceed as though we have a SEXP, and recover any panics
-	// We assume any panics are a result of a type mismatch, where the provided interface is not a C.SEXP
+	// This function requires in to be a C.SEXP or a *C.SEXP, but there is no compile-time enforcement
+	// mechanism as the function argument is an empty interface. Therefore, we will proceed as though we
+	// have a SEXP, and recover any panics which are likely caused by trying to cast something as a SEXP
+	// that isn't. We assume this is the cause of any panic.
 	defer func() {
 		if r := recover(); r != nil {
-			//TODO: It would be nice to capture when a C.SEXP is provided instead of a *C.SEXP and return a more helpful error
-			err = fmt.Errorf("%w: %s", NotASEXP, r)
+			err = fmt.Errorf("%w. more detail: %s", NotASEXP, r)
 		}
 	}()
 
@@ -91,13 +96,30 @@ func NewGoSEXP(in interface{}) (g GoSEXP, err error) {
 	underlyingData := reflect.ValueOf(in)
 	underlyingDataCpointer := underlyingData.Pointer()
 	pointerToUnderlyingData := unsafe.Pointer(underlyingDataCpointer)
-	sexpSEXP := *(*C.SEXP)(pointerToUnderlyingData)
 
-	// now put the correctly type SEXP in the output
-	g.Point = unsafe.Pointer(&sexpSEXP)
+	// At this point, pointerToUnderlyingData can either point to C.SEXP or a *C.SEXP, and we don't know which
+	// 	one at compile time. If we cast a C.SEXP as a *C.SEXP, we will get a fatal runtime error because of a
+	// 	pointer misalignment, not a panic (see . This causes both Go and R to crash without grace.
+	// This is a bug that existed in versions 1.0.0 and 1.0.1.
+	// To make sure we deal with this in a backwards compatible way, we first cast as a C.SEXP. If the user
+	// 	passes in a *C.SEXP, the TYPEOF function will return a type that isn't one of the ones rsexp supports.
+	RsexpSEXP := (C.SEXP)(pointerToUnderlyingData)
 
-	typeEnum := C.TYPEOF(sexpSEXP)
-	if !(typeEnum == REALSXP || typeEnum == INTSXP || typeEnum == STRSXP || typeEnum == CHARSXP) {
+	TypeEnum := C.TYPEOF(RsexpSEXP)
+	if !(TypeEnum == REALSXP || TypeEnum == INTSXP || TypeEnum == STRSXP || TypeEnum == CHARSXP) {
+		// We land in this if because the user passed in a *C.SEXP instead of an actual C.SEXP that we assumed
+		// 	in the cast above. Luckily, this isn't a problem - knowing that we've now got a *C.SEXP, we can
+		// 	recast without breaking Go's type safety and proceed.
+		RsexpSEXP = *(*C.SEXP)(pointerToUnderlyingData)
+		TypeEnum = C.TYPEOF(RsexpSEXP)
+	}
+
+	// if we've gotten this far, it should be safe to assume that the underlying data is a legit SEXP,
+	// so we acn create the output GoSEXP without worrying that we're having it point to something weird
+	g.Point = unsafe.Pointer(&RsexpSEXP)
+
+	// However, we still have no guarantee that the SEXP is of a type that the rsexp package can work with
+	if !(TypeEnum == REALSXP || TypeEnum == INTSXP || TypeEnum == STRSXP || TypeEnum == CHARSXP) {
 		return g, TypeMismatch
 	}
 

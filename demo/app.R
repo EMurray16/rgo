@@ -144,6 +144,13 @@ server <- function(input, output) {
         #Pretend to do the work
         size = c(nrow(doublesMatrix),ncol(doublesMatrix))
         GoMatList = .Call("TestMatrix", doublesMatrix, size)
+        if (length(GoMatList) != 2) {
+          output$GopherResponded = renderPrint({
+            cat("oops! Looks like there was an error in the TestMatrix function:\n")
+            print(GoMatList)
+          })
+          return()
+        }
         doublesMatrix2 = sexp.ParseGoMatrix(GoMatList)
         
         output$GopherResponded = renderPrint({

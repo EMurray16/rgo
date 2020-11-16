@@ -15,7 +15,7 @@ package main
 import "C"
 
 import (
-	"rsexp"
+	"github.com/EMurray16/Rgo/rsexp"
 )
 
 func deref(g rsexp.GoSEXP) C.SEXP {
@@ -55,7 +55,7 @@ func TestFloat(s C.SEXP) C.SEXP {
 //export TestInt
 func TestInt(s C.SEXP) C.SEXP {
 	//make an unsafe pointer to the SEXP
-	point, err := rsexp.NewGoSEXP(&s)
+	point, err := rsexp.NewGoSEXP(s)
 	if err != nil {
 		// return the error as a string
 		outString := rsexp.String2sexp([]string{err.Error()})
@@ -86,7 +86,7 @@ func TestInt(s C.SEXP) C.SEXP {
 //export TestString
 func TestString(s C.SEXP) C.SEXP {
 	//make an unsafe pointer to the SEXP
-	point, err := rsexp.NewGoSEXP(&s)
+	point, err := rsexp.NewGoSEXP(s)
 	if err != nil {
 		// return the error as a string
 		outString := rsexp.String2sexp([]string{err.Error()})
@@ -126,7 +126,7 @@ func TestMatrix(s, dim C.SEXP) C.SEXP {
 		return deref(outString)
 	}
 
-	sizePoint, err := rsexp.NewGoSEXP(&dim)
+	sizePoint, err := rsexp.NewGoSEXP(dim)
 	if err != nil {
 		// return the error as a string
 		outString := rsexp.String2sexp([]string{err.Error()})
