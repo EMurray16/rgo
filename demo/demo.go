@@ -9,8 +9,8 @@ package main
 // Another way is to find them from your local R installation
 // 		- Typical Linux: /usr/share/R/include/
 // 		- Typical MacOS: /Library/Frameworks/R.framework/Headers/
-// 		- Typical Windows (I think): C:/Program Files/R/R4.0.0/include/
-#cgo CFLAGS: -I/Library/Frameworks/R.framework/Headers/ -I/usr/share/R/include/
+// 		- Typical Windows (I think): C:/Program Files/R/R-4.0.0/include/
+#cgo CFLAGS: -I/Library/Frameworks/R.framework/Headers/ -I/usr/share/R/include/ -I"C:/Program Files/R/R-4.0.0/include/"
 */
 import "C"
 

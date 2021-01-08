@@ -46,6 +46,8 @@ void charInsert(SEXP s, int index, char* c) {
 #cgo LDFLAGS: -L/Library/Frameworks/R.framework/Libraries
 // default linux location
 #cgo LDFLAGS: -L/usr/lib
+// default windows location
+#cgo LDFLAGS: -L'C:/Program Files/R/R-4.0.0/bin/x64/'
 #cgo LDFLAGS: -lR
 */
 import "C"
@@ -157,7 +159,7 @@ func (g GoSEXP) AsFloats() ([]float64, error) {
 func Float2sexp(in []float64) GoSEXP {
 	//allocate the SEXP
 	size := len(in)
-	s2 := C.allocVector(C.REALSXP, C.long(size))
+	s2 := C.allocVector(C.REALSXP, C.longlong(size))
 
 	//insert the elements of the slice one at a time
 	for ind, val := range in {
@@ -199,7 +201,7 @@ func (g GoSEXP) AsInts() ([]int, error) {
 func Int2sexp(in []int) GoSEXP {
 	//allocate the SEXP
 	size := len(in)
-	s2 := C.allocVector(C.INTSXP, C.long(size))
+	s2 := C.allocVector(C.INTSXP, C.longlong(size))
 
 	for ind, val := range in {
 		C.intInsert(s2, C.int(ind), C.int(val))
@@ -227,7 +229,7 @@ func (g GoSEXP) AsStrings() ([]string, error) {
 
 	for stringInd := 0; stringInd < Slen; stringInd++ {
 		// first, pull out the CHARSXP of the string
-		charsxp := C.STRING_ELT(cs, C.long(stringInd))
+		charsxp := C.STRING_ELT(cs, C.longlong(stringInd))
 
 		// we want to build a string using each index of the character vector
 		// to do this we'll use a byte slice as the go-between (get it?)
@@ -254,7 +256,7 @@ func (g GoSEXP) AsStrings() ([]string, error) {
 func String2sexp(in []string) GoSEXP {
 	// allocate the STRSXP
 	size := len(in)
-	s2 := C.allocVector(C.STRSXP, C.long(size))
+	s2 := C.allocVector(C.STRSXP, C.longlong(size))
 
 	for ind, str := range in {
 		C.charInsert(s2, C.int(ind), C.CString(str))
@@ -276,7 +278,7 @@ func List2sexp(in List) GoSEXP {
 	size := len(in)
 
 	//start by making the list vector itself
-	s := C.allocVector(C.VECSXP, C.long(size))
+	s := C.allocVector(C.VECSXP, C.longlong(size))
 
 	//now insert the objects into the list SEXP
 	for ind, obj := range in {
