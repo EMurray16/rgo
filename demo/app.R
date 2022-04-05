@@ -1,10 +1,9 @@
 library(shiny)
-importpath = paste(getwd(), "/demo.so", sep="")
 
 # We only want to load the shared library if we haven't already
 if (!is.loaded("TestMatrix")) {
   print("loading shared library")
-  dyn.load(importpath)
+  dyn.load("demo.so")
 }
 print("shared library is loaded")
 

@@ -1,4 +1,4 @@
-package rsexp
+package rgo
 
 // dotProduct calculates the dot product of two vectors. It is used to make matrix multiplication easier.
 func dotProduct(a, b []float64) (f float64, err error) {

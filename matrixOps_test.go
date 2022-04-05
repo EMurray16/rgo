@@ -1,4 +1,4 @@
-package rsexp
+package rgo
 
 import (
 	"testing"
