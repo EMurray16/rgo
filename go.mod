@@ -1,3 +1,3 @@
-module github.com/EMurray16/Rgo
+module github.com/EMurray16/rgo
 
-go 1.14
+go 1.18

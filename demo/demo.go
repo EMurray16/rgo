@@ -1,4 +1,4 @@
-//This tests the conversions/rsexp package
+//This tests the rgo package
 package main
 
 /*
@@ -15,27 +15,26 @@ package main
 import "C"
 
 import (
-	"github.com/EMurray16/Rgo/rsexp"
+	"fmt"
+	"github.com/EMurray16/rgo"
 )
-
-func deref(g rsexp.GoSEXP) C.SEXP {
-	return *(*C.SEXP)(g.Point)
-}
 
 //export TestFloat
 func TestFloat(s C.SEXP) C.SEXP {
-	point, err := rsexp.NewGoSEXP(&s)
+	point, err := rgo.NewRSEXP(s)
 	if err != nil {
 		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
 	}
 
-	TestSlicef, err := point.AsFloats()
+	TestSlicef, err := rgo.AsNumeric[float64](point)
 	if err != nil {
 		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
 	}
 
 	//now multiply everything in the slice by two
@@ -45,28 +44,42 @@ func TestFloat(s C.SEXP) C.SEXP {
 		sum += TestSlicef[i]
 	}
 	TestSlicef = append(TestSlicef, sum)
+	// fmt.Println(TestSlicef)
 
 	//now make a new SEXP
-	s2 := rsexp.Float2sexp(TestSlicef)
+	s2 := rgo.NumericToRSEXP(TestSlicef)
+	fmt.Println(s2)
+	// var out C.SEXP
+	out, err := rgo.ExportRSEXP[C.SEXP](s2)
+	fmt.Println(out, err)
+	if err != nil {
+		// return the error as a string
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
+	}
 	//defereference the pointer
-	return deref(s2)
+	return out
 }
 
 //export TestInt
 func TestInt(s C.SEXP) C.SEXP {
 	//make an unsafe pointer to the SEXP
-	point, err := rsexp.NewGoSEXP(s)
+	point, err := rgo.NewRSEXP(s)
 	if err != nil {
 		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
 	}
 
-	TestSlice, err := point.AsInts()
+	TestSlice, err := rgo.AsNumeric[int](point)
+	fmt.Println(TestSlice)
 	if err != nil {
 		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
 	}
 
 	//now multiply everything in the slice by two
@@ -77,28 +90,37 @@ func TestInt(s C.SEXP) C.SEXP {
 	}
 	TestSlice = append(TestSlice, Sum)
 
-	//now make a new SEXP
-	s2 := rsexp.Int2sexp(TestSlice)
+	//make the new SEXP
+	s2 := rgo.NumericToRSEXP(TestSlice)
+	out, err := rgo.ExportRSEXP[C.SEXP](s2)
+	if err != nil {
+		// return the error as a string
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
+	}
 	//defereference the pointer
-	return deref(s2)
+	return out
 }
 
 //export TestString
 func TestString(s C.SEXP) C.SEXP {
 	//make an unsafe pointer to the SEXP
-	point, err := rsexp.NewGoSEXP(s)
+	point, err := rgo.NewRSEXP(s)
 	if err != nil {
 		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
 	}
 
 	//now get the string and write a file
-	TestString, err := point.AsStrings()
+	TestString, err := rgo.AsCharacter[string](point)
 	if err != nil {
 		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
 	}
 
 	//now send a message back to R
@@ -112,42 +134,36 @@ func TestString(s C.SEXP) C.SEXP {
 	outstring += "'!"
 
 	//make the new SEXP
-	s2 := rsexp.String2sexp([]string{outstring, outstring + "again"})
-	//dereference the pointer
-	return deref(s2)
+	s2 := rgo.CharacterToRSEXP([][]byte{[]byte(outstring), []byte(outstring + "again")})
+	out, err := rgo.ExportRSEXP[C.SEXP](s2)
+	if err != nil {
+		// return the error as a string
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
+	}
+	//defereference the pointer
+	return out
 }
 
 //export TestMatrix
-func TestMatrix(s, dim C.SEXP) C.SEXP {
-	vecPoint, err := rsexp.NewGoSEXP(&s)
+func TestMatrix(s C.SEXP) C.SEXP {
+	vecPoint, err := rgo.NewRSEXP(s)
 	if err != nil {
 		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
 	}
 
-	sizePoint, err := rsexp.NewGoSEXP(dim)
+	TestMat, err := rgo.AsMatrix(vecPoint)
 	if err != nil {
 		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
 	}
-
-	// parse the indices
-	inds, err := sizePoint.AsInts()
-	if err != nil {
-		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
-	}
-
-	//now get the matrix
-	TestMat, err := vecPoint.AsMatrix(inds[0], inds[1])
-	if err != nil {
-		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
-	}
+	fmt.Println(TestMat)
 
 	//now append the columns to the matrix
 	addedcol := make([]float64, TestMat.Nrow)
@@ -155,8 +171,9 @@ func TestMatrix(s, dim C.SEXP) C.SEXP {
 		row, err := TestMat.GetRow(i)
 		if err != nil {
 			// return the error as a string
-			outString := rsexp.String2sexp([]string{err.Error()})
-			return deref(outString)
+			outString := rgo.CharacterToRSEXP([]string{err.Error()})
+			out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+			return out
 		}
 		var sum float64
 		for _, f := range row {
@@ -167,8 +184,9 @@ func TestMatrix(s, dim C.SEXP) C.SEXP {
 	err = TestMat.AppendCol(addedcol)
 	if err != nil {
 		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
 	}
 
 	//now append the columns
@@ -177,8 +195,9 @@ func TestMatrix(s, dim C.SEXP) C.SEXP {
 		col, err := TestMat.GetCol(i)
 		if err != nil {
 			// return the error as a string
-			outString := rsexp.String2sexp([]string{err.Error()})
-			return deref(outString)
+			outString := rgo.CharacterToRSEXP([]string{err.Error()})
+			out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+			return out
 		}
 		var sum float64
 		for _, f := range col {
@@ -189,13 +208,70 @@ func TestMatrix(s, dim C.SEXP) C.SEXP {
 	err = TestMat.AppendRow(addedrow)
 	if err != nil {
 		// return the error as a string
-		outString := rsexp.String2sexp([]string{err.Error()})
-		return deref(outString)
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
 	}
 
 	//convert the matrix back to a slice
-	s2 := rsexp.Matrix2sexp(TestMat)
-	return deref(s2)
+	s2 := rgo.MatrixToRSEXP(TestMat)
+	out, err := rgo.ExportRSEXP[C.SEXP](s2)
+	if err != nil {
+		// return the error as a string
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
+	}
+	return out
+}
+
+//export MakeDataFrame
+func MakeDataFrame() C.SEXP {
+	column1 := []string{"0", "1", "e", "pi"}
+	column2 := []float64{0, 1, 2.71, 3.14}
+
+	col1SEXP := rgo.CharacterToRSEXP(column1)
+	col2SEXP := rgo.NumericToRSEXP(column2)
+
+	colNames := []string{"Constant", "Value"}
+	rowNames := []string{}
+
+	df, err := rgo.MakeDataFrame(rowNames, colNames, col1SEXP, col2SEXP)
+	fmt.Println("made DataFrame:", df)
+	if err != nil {
+		// return the error as a string
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
+	}
+
+	out, _ := rgo.ExportRSEXP[C.SEXP](df)
+
+	return out
+}
+
+//export MakeNamedList
+func MakeNamedList() C.SEXP {
+	column1 := []string{"0", "1", "e", "pi"}
+	column2 := []float64{0, 1, 2.71, 3.14}
+
+	col1SEXP := rgo.CharacterToRSEXP(column1)
+	col2SEXP := rgo.NumericToRSEXP(column2)
+
+	colNames := []string{"Constant", "Value"}
+
+	df, err := rgo.MakeNamedList(colNames, col1SEXP, col2SEXP)
+	fmt.Println("made named list:", df)
+	if err != nil {
+		// return the error as a string
+		outString := rgo.CharacterToRSEXP([]string{err.Error()})
+		out, _ := rgo.ExportRSEXP[C.SEXP](outString)
+		return out
+	}
+
+	out, _ := rgo.ExportRSEXP[C.SEXP](df)
+
+	return out
 }
 
 func main() {}

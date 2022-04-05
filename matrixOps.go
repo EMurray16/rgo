@@ -1,4 +1,4 @@
-package rsexp
+package rgo
 
 // AreMatricesEqual returns true if the input matrices are of the same dimension and have identical data vectors. It's
 // important to note that this function uses strict equality - even if elements of two matrices differ by floating

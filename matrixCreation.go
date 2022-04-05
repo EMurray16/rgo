@@ -1,4 +1,4 @@
-package rsexp
+package rgo
 
 // CreateZeros creates a matrix of the given dimensions in which every element is 0. If the given dimensions
 // are nonsensical (negative, for example) it will return an InvalidIndex error.
